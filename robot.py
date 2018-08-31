@@ -24,6 +24,9 @@ EXPECTED_SCAN_DURATION = 0.1
 
 
 class Directions(object):
+    """
+    The direction class is for storing and computing distances around the lidar 
+    """
     
     def __init__(self):
         
@@ -59,6 +62,17 @@ class Directions(object):
         
 
     def update(self,packet):
+        """
+        Method to update the distance lists 
+        """
+
+        self.direction = random.randint(0,3)
+        print("New direction ", self.direction)
+        i = 0
+        return
+
+
+        # uncomment the following for handling real packets!
         """
         v = bytearray(packet)  # alt fra pakken legges i denne bytearrayen
 
@@ -141,17 +155,17 @@ class Directions(object):
 
         """
 
-        self.direction = random.randint(0,3)
-        print("New direction ", self.direction)
-        i = 0
-        return
 
 class Lidar(object):
+
+    """ Object to read data from a lidar TCP stream - the Directions class handles the decoding
+    """
     def __init__(self, setup, directions):
         
         self.setup = setup
         self.directions = directions
 
+        # uncomment the following for actually receiving packets
         #self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #self.sock.connect((setup['IPADDRESS'],setup['LIDARPORT'] ))
         logging.info('Lidar started')
@@ -177,25 +191,39 @@ class Lidar(object):
             time.sleep(1)
 
 class Vehicle(object):
+    """ Object to handle the vehicle - run as a thread 
+    """
+
     def __init__(self, setup, directions):
         logging.info('Vehicle operational')
 
         self.directions = directions
+
+        # establish connection with vehicle
+        #self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #self.sock.connect(((setup['IPADDRESS'],setup['VEHICHLEPORT'] )))
+
         self.thread = threading.Thread(target=self.vehicleguide, args=())
         self.thread.daemon = True  # Daemonize thread
         self.thread.start()
         return
 
     def vehicleguide(self):
+        """ 
+        this is where the fun should happen - based on data in self.directions 
+        """
+
         while True:
             
+            # nothing much happens now
             newdirection = self.directions.direction
 
-            logging.debug('Navigation here - new direction '+str(self.directions.direction))
+            logging.debug('Navigation here - new direction '+str(newdirection))
             time.sleep(1)
 
 class Robot(object):
-
+    """ The robot doesnt do much except  keeping track of directions, lidar and vehicle 
+    """
     def __init__(self, setup):
         self.ipaddress = setup['IPADDRESS']
         self.lidarport = setup['LIDARPORT']
@@ -225,5 +253,3 @@ if __name__ == "__main__":
     robot = Robot(setup)
     robot.run()
 
-
-    
